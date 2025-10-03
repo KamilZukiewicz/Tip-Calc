@@ -52,6 +52,12 @@ struct ContentView: View {
                 }
                 .padding(.horizontal)
             }
+            .alert(isPresented: $tipViewModel.shouldDisplayError) {
+                let error = tipViewModel.error
+                return Alert(title: Text("Błąd"), message: Text(error?.description ?? "Ups!"), dismissButton: Alert.Button.default(Text("Zamknij"), action: {
+                    tipViewModel.shouldDisplayError = false
+                }))
+            }
         }
         .onAppear {
             tipViewModel.getTipHistoryFromServer()
@@ -178,9 +184,7 @@ struct ContentView: View {
                     isConfirming = true
 
                 }
-//                .onLongPressGesture{
-//                    showMenu = true
-//                }
+
                 .confirmationDialog(
                     "Are you sure you want to import this file?",
                     isPresented: $isConfirming, titleVisibility: .visible
@@ -273,13 +277,15 @@ struct ContentView: View {
                                     .font(.subheadline)
                                     .frame(maxWidth: .infinity)
                             }
+                            Button("Usun") {
+                                tipViewModel.deleteTipFromServer(tip: historyItem)
+                            }
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.white.opacity(0.3))
                         .cornerRadius(10)
                     }
-                    
                 }
             }
         }

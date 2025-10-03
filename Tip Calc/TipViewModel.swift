@@ -29,6 +29,21 @@ enum HTTPMethod: String {
     case DELETE
 }
 
+enum TipError: Error {
+    case badRequest
+    
+    case notFound
+    
+    var description: String {
+        switch self {
+        case .badRequest:
+            return "Upps! Something went wrong!"
+        case .notFound:
+            return "Not found"
+        }
+    }
+}
+
 class TipViewModel : ObservableObject {
     @Published var amount: Double = 0.0
     @Published var tipPercent: Double = 10.0
@@ -37,6 +52,8 @@ class TipViewModel : ObservableObject {
     @Published var formatedCurrency: String = ""
     @Published var history: [HistoryData] = []
     @Published var userData: [UserData] = []
+    @Published var error: TipError?
+    @Published var shouldDisplayError: Bool = false
     
     private let baseStringURL = "http://localhost:3000" // + ścieżki
     
@@ -97,14 +114,44 @@ class TipViewModel : ObservableObject {
          */
         request.httpBody = body
         
-        URLSession.shared.dataTask(with: request) { _, _, error in
-            if let error {
-                print(error)
-                return
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let httpResponse = response as? HTTPURLResponse {
+                if httpResponse.statusCode == 400 {
+                    DispatchQueue.main.async {
+                        self.error = .badRequest
+                        self.shouldDisplayError = true
+                    }
+                    return
+                }
             }
             DispatchQueue.main.async {
                 self.getTipHistoryFromServer()
             }
+        }.resume()
+    }
+    
+    func deleteTipFromServer(tip: HistoryData) {
+        guard let url = URL(string: baseStringURL)?.appendingPathComponent("tips/\(tip.id)") else {
+            print("String URL was bad")
+            return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = HTTPMethod.DELETE.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        URLSession.shared.dataTask(with: request) { (data, response, error) in
+            if let httpResponse = response as? HTTPURLResponse {
+                if httpResponse.statusCode == 404, let data {
+                    DispatchQueue.main.async {
+                        self.error = .notFound
+                        self.shouldDisplayError = true
+                                        }
+                    return
+               
+                }
+                
+            }
+            self.getTipHistoryFromServer()
         }.resume()
     }
     
