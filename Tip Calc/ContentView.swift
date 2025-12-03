@@ -12,19 +12,16 @@ struct ContentView: View {
     @State private var isEditing = false
     @State private var roundUp: Bool = false
     @FocusState private var isFocused: Bool
-    @State private var showMenu = false 
-    
+    @State private var showMenu = false
+    @State var currencies: Currencies = .PLN
+    @State var currenciesConverted: CurrenciesConverted = .EUR
     @State private var isConfirming = false
 
     let step = 1
     let range = 1...30
     
-    enum Currencies: String, CaseIterable, Identifiable {
-        case PLN, EUR, USD
-        var id: Self { self }
-    }
-    
     var body: some View {
+        
         ZStack {
             LinearGradient(gradient: Gradient(colors: [.blue, .purple]),
                            startPoint: .topLeading,
@@ -53,14 +50,17 @@ struct ContentView: View {
                 .padding(.horizontal)
             }
             .alert(isPresented: $tipViewModel.shouldDisplayError) {
-                let error = tipViewModel.error
-                return Alert(title: Text("Błąd"), message: Text(error?.description ?? "Ups!"), dismissButton: Alert.Button.default(Text("Zamknij"), action: {
+                let error = tipViewModel.viewError
+                return Alert(title: Text("Błąd"), message: Text(error?.localizedDescription ?? ""),
+                             dismissButton: Alert.Button.default(Text(L10n.Alert.Button.Close.title), action: {
                     tipViewModel.shouldDisplayError = false
                 }))
             }
         }
         .onAppear {
             tipViewModel.getTipHistoryFromServer()
+            tipViewModel.downloadEUR()
+            tipViewModel.downloadUSD()
         }
     }
     
@@ -85,7 +85,11 @@ struct ContentView: View {
         CardView {
             VStack(spacing: Constants.spacing) {
                 HStack {
-                    Slider(value: $tipViewModel.tipPercent,
+                    Slider(value: Binding(
+                        get: { Double(tipViewModel.tipPercent) },
+                        set: {
+                            tipViewModel.tipPercent = tipViewModel.tipPercentRoundedValue($0)
+                        }),
                            in: 0...50,
                            step: 5)
                     {
@@ -98,11 +102,11 @@ struct ContentView: View {
                         isEditing = editing
                     }
                 }
-                Text("\(Int(tipViewModel.tipPercent))%")
+                Text("\(tipViewModel.tipPercent)%")
                     .foregroundColor(isEditing ? .red : .white)
                 
                 HStack {
-                    Text("Liczba osób: \(tipViewModel.people)")
+                    Text(L10n.Form.Number.Of.People.title(tipViewModel.people))
 
                     Stepper(
                         value: $tipViewModel.people,
@@ -115,7 +119,7 @@ struct ContentView: View {
                 }
                 VStack {
                     
-                    Text("Wybierz walutę:")
+                    Text(L10n.Picker.Choose.Currency.title)
                     Picker("Waluta", selection: $tipViewModel.currencyCode) {
                         Text("Polski złoty").tag(Currencies.PLN)
                         Text("Euro").tag(Currencies.EUR)
@@ -125,10 +129,11 @@ struct ContentView: View {
                     .background(Color.blue.opacity(0.2))
                     
                     Text("Przelicz na walutę:")
-                    Picker("Waluta", selection: $tipViewModel.currencyCode) {
-                        Text("Polski złoty").tag(Currencies.PLN)
-                        Text("Euro").tag(Currencies.EUR)
-                        Text("Dolar").tag(Currencies.USD)
+                    
+                    Picker("Waluta", selection: $tipViewModel.currencyCodeConverted) {
+                        Text("Polski złoty").tag(CurrenciesConverted.PLN)
+                        Text("Euro").tag(CurrenciesConverted.EUR)
+                        Text("Dolar").tag(CurrenciesConverted.USD)
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .background(Color.blue.opacity(0.2))
@@ -136,6 +141,7 @@ struct ContentView: View {
             }
         }
     }
+    
     private func amountShowView() -> some View {
         CardView {
             VStack(spacing: Constants.spacing) {
@@ -143,22 +149,34 @@ struct ContentView: View {
                 HStack {
                     Text("Kwota napiwku:")
                     Spacer()
-                    Text("\(tipViewModel.tip(amount: tipViewModel.amount, percent: tipViewModel.tipPercent), specifier: "%.2f") \(tipViewModel.currencyCode.rawValue)")
-                        .bold()
+                    VStack {
+                        Text("\(tipViewModel.tip(amount: tipViewModel.amount, percent: tipViewModel.tipPercent), specifier: "%.2f") \(tipViewModel.currencyCode.rawValue)")
+                            .bold()
+                        Text("\(tipViewModel.convertedTip() ?? 0.0, specifier: "%.2f"), \(tipViewModel.currencyCodeConverted.rawValue)")
+                            .opacity(0.6)
+                    }
                 }
                 
                 HStack {
                     Text("Do zapłaty łącznie:")
                     Spacer()
-                    Text("\(tipViewModel.total(amount: tipViewModel.amount, percent: tipViewModel.tipPercent), specifier: "%.2f") \(tipViewModel.currencyCode.rawValue)")
-                        .bold()
+                    VStack {
+                        Text("\(tipViewModel.total(amount: tipViewModel.amount, percent: tipViewModel.tipPercent), specifier: "%.2f") \(tipViewModel.currencyCode.rawValue)")
+                            .bold()
+                        Text("\(tipViewModel.convertedTotal() ?? 0.0, specifier: "%.2f"), \(tipViewModel.currencyCodeConverted.rawValue)")
+                            .opacity(0.6)
+                    }
                 }
                 
                 HStack {
                     Text("Na osobę:")
                     Spacer()
-                    Text("\(tipViewModel.perPerson(amount: tipViewModel.amount, percent: tipViewModel.tipPercent, people: tipViewModel.people), specifier: "%.2f") \(tipViewModel.currencyCode.rawValue)")
-                        .bold()
+                    VStack {
+                        Text("\(tipViewModel.perPerson(amount: tipViewModel.amount, percent: tipViewModel.tipPercent, people: tipViewModel.people), specifier: "%.2f") \(tipViewModel.currencyCode.rawValue)")
+                            .bold()
+                        Text("\(tipViewModel.convertedPerPerson() ?? 0.0, specifier: "%.2f"), \(tipViewModel.currencyCodeConverted.rawValue)")
+                            .opacity(0.6)
+                    }
                 }
             }
             .padding()
@@ -169,10 +187,7 @@ struct ContentView: View {
         CardView {
             VStack(spacing: Constants.spacing) {
                 Button("Reset") {
-                    tipViewModel.amount = 0.0
-                    tipViewModel.tipPercent = 10.0
-                    tipViewModel.people = 1
-                    tipViewModel.currencyCode = .PLN
+                    tipViewModel.resetButton()
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
@@ -182,11 +197,9 @@ struct ContentView: View {
                 
                 Button(tipViewModel.userData.isEmpty ? "Zapisz" : "Wczytaj"){
                     isConfirming = true
-
                 }
-
                 .confirmationDialog(
-                    "Are you sure you want to import this file?",
+                    "Jesteś pewny, że chcesz zaimportować plik?",
                     isPresented: $isConfirming, titleVisibility: .visible
                 ) {
                     Button("Rodzina") {
@@ -204,15 +217,15 @@ struct ContentView: View {
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(!roundUp ? Color.blue.opacity(0.3) : Color.gray.opacity(0.2))
-                .foregroundColor(!roundUp ? .black : .primary)
+                .background(roundUp ? Color.gray.opacity(0.2) : Color.blue.opacity(0.3))
+                .foregroundColor(roundUp ? .primary : .black)
                 .cornerRadius(12)
                 
                 .sheet(isPresented: $showMenu) {
                     ScrollView {
                         VStack(spacing: 10) {
                             ForEach(tipViewModel.userData) { userData in
-                                Button("Waluta: \(userData.currencyCode.rawValue)\nLiczba osób: \(userData.people)\nProcent: \(userData.tipPercent)") {
+                                Button(tipViewModel.userDataFormattedDetailsFrom(userData)) { 
                                     showMenu = false
                                     tipViewModel.applyPresent(for: userData)
                                 }
@@ -312,6 +325,3 @@ struct CardView <Content: View>: View {
         }
     }
 
-#Preview { ContentView()
-    
-}

@@ -1,0 +1,5 @@
+strings:
+  inputs: Tip Calc/Assets/en.lproj/Localizable.strings
+  outputs:
+    - templateName: structured-swift5
+      output: Tip Calc/Generated/Strings.swift

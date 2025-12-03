@@ -1,0 +1,18 @@
+/* 
+  Localizable.strings
+  Tip Calc
+
+  Created by Kamil Żukiewicz on 26/11/2025.
+  
+*/
+
+// "key" = "value";
+// domena.sciezka.rola
+// Username = login.screen.form.textInputName
+"alert.button.close.title" = "Close";
+"picker.choose.currency.title" = "Choose currency:";
+"Picker.Choose.CurrencyCnverted.title" = "Convert to currency";
+"form.number.of.people.title" = "Number of people: %d";
+"form.calculate.currency.title" = "Convert to currency";
+ "" = "Tip amount";
+// uzyc terminala

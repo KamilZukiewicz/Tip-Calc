@@ -11,11 +11,37 @@ import Combine
 @main
 struct Tip_CalcApp: App {
     var body: some Scene {
-        WindowGroup {
+        TestSafeWindowGroup {
             ContentView()
         }
     }
 }
+
+extension ProcessInfo {
+    var isRunningTests: Bool {
+        environment["XCTestConfigurationFilePath"] != nil
+    }
+}
+
+struct TestSafeWindowGroup<Content: View>: Scene {
+    private let content: () -> Content
+    
+    init(@ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+    }
+    
+    var body: some Scene {
+        WindowGroup {
+            if ProcessInfo.processInfo.isRunningTests {
+                EmptyView()
+            } else {
+                content()
+            }
+        }
+    }
+}
+
+
 
 //class DispatchQueueViewModel: ObservableObject {
 //    let serialQueue = DispatchQueue(label: "com.example.serial")
