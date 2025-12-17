@@ -51,7 +51,7 @@ struct ContentView: View {
             }
             .alert(isPresented: $tipViewModel.shouldDisplayError) {
                 let error = tipViewModel.viewError
-                return Alert(title: Text("Błąd"), message: Text(error?.localizedDescription ?? ""),
+                return Alert(title: Text("Error"), message: Text(error?.localizedDescription ?? ""),
                              dismissButton: Alert.Button.default(Text(L10n.Alert.Button.Close.title), action: {
                     tipViewModel.shouldDisplayError = false
                 }))
@@ -68,7 +68,7 @@ struct ContentView: View {
         CardView {
             VStack(spacing: Constants.spacing) {
                 HStack {
-                    TextField("Kwota rachunku w \(tipViewModel.currencyCode.rawValue)", value: $tipViewModel.amount, format: .number)
+                    TextField(L10n.CardView.BillValueView.Textfield.title(tipViewModel.currencyCode.rawValue), value: $tipViewModel.amount, format: .number)
                         .keyboardType(.numberPad)
                         .padding(7)
                         .onChange(of: tipViewModel.amount) { oldValue, newValue in
@@ -93,7 +93,7 @@ struct ContentView: View {
                            in: 0...50,
                            step: 5)
                     {
-                        Text("Procent")
+                        Text("Percent")
                     } minimumValueLabel: {
                         Text("0")
                     } maximumValueLabel: {
@@ -120,20 +120,20 @@ struct ContentView: View {
                 VStack {
                     
                     Text(L10n.Picker.Choose.Currency.title)
-                    Picker("Waluta", selection: $tipViewModel.currencyCode) {
-                        Text("Polski złoty").tag(Currencies.PLN)
-                        Text("Euro").tag(Currencies.EUR)
-                        Text("Dolar").tag(Currencies.USD)
+                    Picker("Currency", selection: $tipViewModel.currencyCode) {
+                        Text("PLN").tag(Currencies.PLN)
+                        Text("EURO").tag(Currencies.EUR)
+                        Text("USD").tag(Currencies.USD)
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .background(Color.blue.opacity(0.2))
                     
-                    Text("Przelicz na walutę:")
+                    Text(L10n.Picker.Choose.CurrencyCnverted.title)
                     
-                    Picker("Waluta", selection: $tipViewModel.currencyCodeConverted) {
-                        Text("Polski złoty").tag(CurrenciesConverted.PLN)
-                        Text("Euro").tag(CurrenciesConverted.EUR)
-                        Text("Dolar").tag(CurrenciesConverted.USD)
+                    Picker("Converted Currency", selection: $tipViewModel.currencyCodeConverted) {
+                        Text("PLN").tag(CurrenciesConverted.PLN)
+                        Text("EURO").tag(CurrenciesConverted.EUR)
+                        Text("USD").tag(CurrenciesConverted.USD)
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .background(Color.blue.opacity(0.2))
@@ -147,7 +147,7 @@ struct ContentView: View {
             VStack(spacing: Constants.spacing) {
                 
                 HStack {
-                    Text("Kwota napiwku:")
+                    Text(L10n.CardView.AmountShowView.Text1.title)
                     Spacer()
                     VStack {
                         Text("\(tipViewModel.tip(amount: tipViewModel.amount, percent: tipViewModel.tipPercent), specifier: "%.2f") \(tipViewModel.currencyCode.rawValue)")
@@ -158,7 +158,7 @@ struct ContentView: View {
                 }
                 
                 HStack {
-                    Text("Do zapłaty łącznie:")
+                    Text(L10n.CardView.AmountShowView.Text2.title)
                     Spacer()
                     VStack {
                         Text("\(tipViewModel.total(amount: tipViewModel.amount, percent: tipViewModel.tipPercent), specifier: "%.2f") \(tipViewModel.currencyCode.rawValue)")
@@ -169,7 +169,7 @@ struct ContentView: View {
                 }
                 
                 HStack {
-                    Text("Na osobę:")
+                    Text(L10n.CardView.AmountShowView.Text3.title)
                     Spacer()
                     VStack {
                         Text("\(tipViewModel.perPerson(amount: tipViewModel.amount, percent: tipViewModel.tipPercent, people: tipViewModel.people), specifier: "%.2f") \(tipViewModel.currencyCode.rawValue)")
@@ -195,23 +195,23 @@ struct ContentView: View {
                 .foregroundColor(!roundUp ? .black : .primary)
                 .cornerRadius(Constants.cornerRadius)
                 
-                Button(tipViewModel.userData.isEmpty ? "Zapisz" : "Wczytaj"){
+                Button(tipViewModel.userData.isEmpty ? L10n.CardView.ButtonView.Button.Save.title : L10n.CardView.ButtonView.Button.Load.title){
                     isConfirming = true
                 }
                 .confirmationDialog(
-                    "Jesteś pewny, że chcesz zaimportować plik?",
+                    L10n.CardView.ButtonView.ConfirmationDialog.title ,
                     isPresented: $isConfirming, titleVisibility: .visible
                 ) {
-                    Button("Rodzina") {
+                    Button(L10n.CardView.ButtonView.PresetButton.Family.title) {
                         tipViewModel.addPreset()
                     }
-                    Button("Znajomi") {
+                    Button(L10n.CardView.ButtonView.PresetButton.Friends.title) {
                         tipViewModel.addPreset()
                     }
-                    Button("Praca") {
+                    Button(L10n.CardView.ButtonView.PresetButton.Work.title) {
                         tipViewModel.addPreset()
                     }
-                    Button("Cancel", role: .cancel) {
+                    Button(L10n.CardView.ButtonView.PresetButton.Cancel.title, role: .cancel) {
                         
                     }
                 }
@@ -250,7 +250,7 @@ struct ContentView: View {
                     tipViewModel.sendTipToServer(tip: historyItem)
                     tipViewModel.history.append(historyItem)
                 }) {
-                    Text("Dodaj do historii")
+                    Text(L10n.CardView.ButtonView.Button.AddToHistory.title)
                         .padding()
                         .frame(maxWidth: .infinity)
                         .background(!roundUp ? Color.blue.opacity(0.3) : Color.gray.opacity(0.2))
@@ -273,24 +273,24 @@ struct ContentView: View {
                     ForEach(tipViewModel.history) { historyItem in
                         VStack {
                             HStack {
-                                Text("Data: \(historyItem.date.formattedDate)")
+                                Text(L10n.CardView.HistoryView.ScrollView.TextData.title(historyItem.date.formattedDate))
                                     .font(.subheadline)
                                     .frame(maxWidth: .infinity)
                                 
-                                Text("Napiwek: \(String(format: "%.2f", historyItem.tipPercent))%")
+                                Text(L10n.CardView.HistoryView.ScrollView.TextTip.title(historyItem.tipPercent))
                                     .font(.subheadline)
                                     .frame(maxWidth: .infinity)
                             }
                             HStack {
-                                Text("Waluta: \(String(format: "%.2f", historyItem.amount)) \(tipViewModel.currencyCode.rawValue)")
+                                Text(L10n.CardView.HistoryView.ScrollView.TextCourrency.title(historyItem.amount))
                                     .font(.subheadline)
                                     .frame(maxWidth: .infinity)
                                 
-                                Text("Na osobę: \(String(format: "%.2f", historyItem.perPerson)) \(tipViewModel.currencyCode.rawValue)")
+                                Text(L10n.CardView.HistoryView.ScrollView.TextPerPerson.title(historyItem.perPerson))
                                     .font(.subheadline)
                                     .frame(maxWidth: .infinity)
                             }
-                            Button("Usun") {
+                            Button(L10n.CardView.HistoryView.ScrollView.Button.Delete.title) {
                                 tipViewModel.deleteTipFromServer(tip: historyItem)
                             }
                         }

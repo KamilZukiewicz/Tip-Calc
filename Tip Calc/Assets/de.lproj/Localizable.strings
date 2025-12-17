@@ -6,29 +6,30 @@
   
 */
 
-"alert.button.close.title" = "Close";
-"picker.choose.currency.title" = "Choose currency:";
-"picker.choose.currencyCnverted.title" = "Convert to currency";
-"form.number.of.people.title" = "Number of people: %d";
-"form.calculate.currency.title" = "Convert to currency";
-"cardView.billValueView.textfield.title" = "Total amount: %@";
-"cardView.amountShowView.text1.title" = "Tip amount:";
-"cardView.amountShowView.text2.title" = "Total amount:";
-"cardView.amountShowView.text3.title" = "Per person:";
-"cardView.buttonView.button.save.title" = "Save";
-"cardView.buttonView.button.load.title" = "Load";
-"cardView.buttonView.confirmationDialog.title" = "Are you sure you want to import the file?";
-"cardView.buttonView.presetButton.family.title" = "Family";
-"cardView.buttonView.presetButton.friends.title" = "Friends";
-"cardView.buttonView.presetButton.work.title" = "Work";
-"cardView.buttonView.presetButton.cancel.title" = "Cancel";
-"cardView.buttonView.button.addToHistory.title" = "Add to history";
-"cardView.historyView.text.title" = "History";
-"cardView.historyView.scrollView.textData.title" = "Date %@";
-"cardView.historyView.scrollView.textTip.title" = "Tip %@";
-"cardView.historyView.scrollView.textCourrency.title" = "Courrency %@";
-"cardView.historyView.scrollView.textPerPerson.title" = "Per person %@";
-"cardView.historyView.scrollView.button.delete.title" = "Delete";
+"alert.button.close.title" = "Schließen";
+"picker.choose.currency.title" = "Währung auswählen:";
+"picker.choose.currencyCnverted.title" = "In Währung umrechnen";
+"form.number.of.people.title" = "Anzahl der Personen: %d";
+"form.calculate.currency.title" = "In Währung umrechnen";
+"cardView.billValueView.textfield.title" = "Gesamtbetrag: %@";
+"cardView.amountShowView.text1.title" = "Trinkgeldbetrag:";
+"cardView.amountShowView.text2.title" = "Gesamtbetrag:";
+"cardView.amountShowView.text3.title" = "Pro Person:";
+"cardView.buttonView.button.save.title" = "Speichern";
+"cardView.buttonView.button.load.title" = "Laden";
+"cardView.buttonView.confirmationDialog.title" = "Sind Sie sicher, dass Sie die Datei importieren möchten?";
+"cardView.buttonView.presetButton.family.title" = "Familie";
+"cardView.buttonView.presetButton.friends.title" = "Freunde";
+"cardView.buttonView.presetButton.work.title" = "Arbeit";
+"cardView.buttonView.presetButton.cancel.title" = "Abbrechen";
+"cardView.buttonView.button.addToHistory.title" = "Zur Historie hinzufügen";
+"cardView.historyView.text.title" = "Historie";
+"cardView.historyView.scrollView.textData.title" = "Datum %@";
+"cardView.historyView.scrollView.textTip.title" = "Trinkgeld %@";
+"cardView.historyView.scrollView.textCourrency.title" = "Währung %@";
+"cardView.historyView.scrollView.textPerPerson.title" = "Pro Person %@";
+"cardView.historyView.scrollView.button.delete.title" = "Löschen";
+
 
 
 

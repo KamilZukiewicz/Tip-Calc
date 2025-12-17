@@ -62,7 +62,7 @@ class TipViewModel : ObservableObject {
     }
     
     func getTipHistoryFromServer() {
-        requestManager.send(endpoint: "/tips", method: .GET, responseType: [HistoryData].self) { [weak self] result in
+        requestManager.send(endpoint: "tips", method: .GET, responseType: [HistoryData].self) { [weak self] result in
             switch result {
             case .success(let decodedHistory):
                 self?.history = decodedHistory
@@ -75,7 +75,7 @@ class TipViewModel : ObservableObject {
     
     func sendTipToServer(tip: HistoryData) {
         requestManager.send(
-            endpoint: "/tips",
+            endpoint: "tips",
             method: .POST,
             body: tip) { [weak self] result in
                 switch result {
@@ -88,19 +88,25 @@ class TipViewModel : ObservableObject {
             }
     }
     
+    /*
+     POST = HistoryData -> Codable -> JSON -> Data (BODY)
+     GET = facebook.com/authentication?userId=123&privilige=admin&scope=all
+     */
+    
     func deleteTipFromServer(tip: HistoryData) {
         requestManager.send(
-                    endpoint: "tips/\(tip.id)",
-                    method: .POST,
-                    body: tip) { [weak self] result in
-                        switch result {
-                        case .success:
-                            self?.getTipHistoryFromServer()
-                        case .failure(let error):
-                            self?.viewError = .from(error)
-                            self?.shouldDisplayError = true
-                        }
-                    }
+            endpoint: "tips",
+            method: .DELETE,
+            query: ["id": tip.id.uuidString],
+            responseType: EmptyResponse.self) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.getTipHistoryFromServer()
+                case .failure(let error):
+                    self?.viewError = .from(error)
+                    self?.shouldDisplayError = true
+                }
+            }
     }
     
     func tipPercentRoundedValue(_ value: Double) -> Int32 {
@@ -158,9 +164,9 @@ class TipViewModel : ObservableObject {
     }
     
     func userDataFormattedDetailsFrom(_ userData: UserData) -> String {
-        let currency = "Waluta: \(userData.currencyCode.rawValue)" + "\n"
-        let numberOfPeople = "Liczba osób: \(userData.people)" + "\n"
-        let percent = "Procent: \(userData.tipPercent)"
+        let currency = "Currency: \(userData.currencyCode.rawValue)" + "\n"
+        let numberOfPeople = "Per person: \(userData.people)" + "\n"
+        let percent = "Percent: \(userData.tipPercent)"
         return "\(currency)\(numberOfPeople)\(percent)"
     }
     
@@ -175,7 +181,7 @@ class TipViewModel : ObservableObject {
         guard let url = URL(string: "https://api.nbp.pl/api/exchangerates/rates/a/eur/?format=json") else { return }
         URLSession.shared.dataTask(with: url) { data, _, error in
             if let error {
-                print("Błąd sieci: \(error)")
+                print("Network error: \(error)")
                 return
             }
             guard let data else { return }
@@ -185,7 +191,7 @@ class TipViewModel : ObservableObject {
                     self.euroRate = decoded.rates.first?.mid
                 }
             } catch {
-                print("Błąd JSON: \(error)") // TODO: Obsługa błędu
+                print("Error JSON: \(error)")
             }
         }.resume()
     }
@@ -194,7 +200,7 @@ class TipViewModel : ObservableObject {
         guard let url = URL(string: "https://api.nbp.pl/api/exchangerates/rates/a/usd/?format=json") else { return }
         URLSession.shared.dataTask(with: url) { data, _, error in
             if let error {
-                print("Błąd sieci: \(error)")
+                print("Network error: \(error)")
                 return
             }
             guard let data else { return }
@@ -204,7 +210,7 @@ class TipViewModel : ObservableObject {
                     self.usdRate = decoded.rates.first?.mid
                 }
             } catch {
-                print("Błąd JSON: \(error)") // TODO: jak wyżej
+                print("Error JSON: \(error)")
             }
         }.resume()
     }

@@ -13,7 +13,11 @@ final class RequestManager {
     private init() {}
 
     private let requestService: RequestService = URLSession.shared
+    #if DEBUG
     private let baseStringURL = "http://localhost:3000"
+    #else
+    private let baseStringURL = "https://serwivs:3000" // znalazl serwis gdzie wrzucimy nasz serwer
+    #endif
 }
 
 
@@ -93,11 +97,22 @@ extension RequestManager {
     func send<T: Decodable, Body: Encodable>(
         endpoint: String,
         method: HTTPMethod,
+        query: [String: String]? = nil,
         body: Body,
         responseType: T.Type = EmptyResponse.self,
         completion: @escaping (Result<T, NetworkError>) -> Void
     ) {
-        guard let url = URL(string: baseStringURL)?.appendingPathComponent(endpoint) else {
+        guard var components = URLComponents(string: baseStringURL) else {
+            completion(.failure(.unexpectedStatus(-1)))
+            return
+        }
+        components.path += "/\(endpoint)"
+        
+        if let query = query {
+            components.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) }
+        }
+        
+        guard let url = components.url else {
             completion(.failure(.unexpectedStatus(-1)))
             return
         }
@@ -121,10 +136,21 @@ extension RequestManager {
     func send<T: Decodable>(
         endpoint: String,
         method: HTTPMethod,
+        query: [String: String]? = nil,
         responseType: T.Type,
         completion: @escaping (Result<T, NetworkError>) -> Void
     ) {
-        guard let url = URL(string: baseStringURL)?.appendingPathComponent(endpoint) else {
+        guard var components = URLComponents(string: baseStringURL) else {
+            completion(.failure(.unexpectedStatus(-1)))
+            return
+        }
+        components.path += "/\(endpoint)"
+        
+        if let query = query {
+            components.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) }
+        }
+        
+        guard let url = components.url else {
             completion(.failure(.unexpectedStatus(-1)))
             return
         }

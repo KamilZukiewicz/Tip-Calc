@@ -1,4 +1,4 @@
-/* 
+/*
   Localizable.strings
   Tip Calc
 
@@ -6,14 +6,27 @@
   
 */
 
-// "key" = "value";
-// domena.sciezka.rola
-// Username = login.screen.form.textInputName
 "alert.button.close.title" = "Zamknij";
 "picker.choose.currency.title" = "Wybierz walutę:";
+"picker.choose.currencyCnverted.title" = "Przelicz na walutę";
 "form.number.of.people.title" = "Liczba osób: %d";
 "form.calculate.currency.title" = "Przelicz na walutę";
-"" = "Tip amount";
-"" = "Total amount";
-"" = "Amount per person";
-// uzyc terminala
+"cardView.billValueView.textfield.title" = "Kwota całkowita: %@";
+"cardView.amountShowView.text1.title" = "Kwota napiwku:";
+"cardView.amountShowView.text2.title" = "Kwota całkowita:";
+"cardView.amountShowView.text3.title" = "Na osobę:";
+"cardView.buttonView.button.save.title" = "Zapisz";
+"cardView.buttonView.button.load.title" = "Wczytaj";
+"cardView.buttonView.confirmationDialog.title" = "Czy na pewno chcesz zaimportować plik?";
+"cardView.buttonView.presetButton.family.title" = "Rodzina";
+"cardView.buttonView.presetButton.friends.title" = "Przyjaciele";
+"cardView.buttonView.presetButton.work.title" = "Praca";
+"cardView.buttonView.presetButton.cancel.title" = "Anuluj";
+"cardView.buttonView.button.addToHistory.title" = "Dodaj do historii";
+"cardView.historyView.text.title" = "Historia";
+"cardView.historyView.scrollView.textData.title" = "Data %@";
+"cardView.historyView.scrollView.textTip.title" = "Napiwek %@";
+"cardView.historyView.scrollView.textCourrency.title" = "Waluta %@";
+"cardView.historyView.scrollView.textPerPerson.title" = "Na osobę %@";
+"cardView.historyView.scrollView.button.delete.title" = "Usuń";
+

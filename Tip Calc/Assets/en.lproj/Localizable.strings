@@ -6,13 +6,34 @@
   
 */
 
-// "key" = "value";
-// domena.sciezka.rola
-// Username = login.screen.form.textInputName
 "alert.button.close.title" = "Close";
 "picker.choose.currency.title" = "Choose currency:";
-"Picker.Choose.CurrencyCnverted.title" = "Convert to currency";
+"picker.choose.currencyCnverted.title" = "Convert to currency";
 "form.number.of.people.title" = "Number of people: %d";
 "form.calculate.currency.title" = "Convert to currency";
- "" = "Tip amount";
-// uzyc terminala
+"cardView.billValueView.textfield.title" = "Total amount: %@";
+"cardView.amountShowView.text1.title" = "Tip amount:";
+"cardView.amountShowView.text2.title" = "Total amount:";
+"cardView.amountShowView.text3.title" = "Per person:";
+"cardView.buttonView.button.save.title" = "Save";
+"cardView.buttonView.button.load.title" = "Load";
+"cardView.buttonView.confirmationDialog.title" = "Are you sure you want to import the file?";
+"cardView.buttonView.presetButton.family.title" = "Family";
+"cardView.buttonView.presetButton.friends.title" = "Friends";
+"cardView.buttonView.presetButton.work.title" = "Work";
+"cardView.buttonView.presetButton.cancel.title" = "Cancel";
+"cardView.buttonView.button.addToHistory.title" = "Add to history";
+"cardView.historyView.text.title" = "History";
+"cardView.historyView.scrollView.textData.title" = "Date %@";
+"cardView.historyView.scrollView.textTip.title" = "Tip %@";
+"cardView.historyView.scrollView.textCourrency.title" = "Courrency %@";
+"cardView.historyView.scrollView.textPerPerson.title" = "Per person %@";
+"cardView.historyView.scrollView.button.delete.title" = "Delete";
+
+
+
+
+
+
+
+
