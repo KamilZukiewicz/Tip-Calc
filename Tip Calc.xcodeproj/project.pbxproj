@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2F0FB27E2EF4041200DE4174 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 2F0FB27D2EF4041200DE4174 /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		2FAFFD022E96EF4E0051C459 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -39,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2F0FB27E2EF4041200DE4174 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +95,7 @@
 			);
 			name = "Tip Calc";
 			packageProductDependencies = (
+				2F0FB27D2EF4041200DE4174 /* Supabase */,
 			);
 			productName = "Tip Calc";
 			productReference = 2F5C854D2E56E6C1001B703B /* Tip Calc.app */;
@@ -150,6 +156,9 @@
 			);
 			mainGroup = 2F5C85442E56E6C1001B703B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2F0FB27C2EF4041200DE4174 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2F5C854E2E56E6C1001B703B /* Products */;
 			projectDirPath = "";
@@ -462,6 +471,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2F0FB27C2EF4041200DE4174 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase-community/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2F0FB27D2EF4041200DE4174 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2F0FB27C2EF4041200DE4174 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2F5C85452E56E6C1001B703B /* Project object */;
 }

@@ -58,7 +58,9 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            tipViewModel.getTipHistoryFromServer()
+            Task {
+                await tipViewModel.getTipHistoryFromServer()
+            }
             tipViewModel.downloadEUR()
             tipViewModel.downloadUSD()
         }
@@ -247,8 +249,10 @@ struct ContentView: View {
                         tipPercent: tipViewModel.tipPercent,
                         perPerson: perPerson
                     )
-                    tipViewModel.sendTipToServer(tip: historyItem)
-                    tipViewModel.history.append(historyItem)
+                    Task {
+                        await tipViewModel.sendTipToServer(tip: historyItem)
+                        tipViewModel.history.append(historyItem)
+                    }
                 }) {
                     Text(L10n.CardView.ButtonView.Button.AddToHistory.title)
                         .padding()

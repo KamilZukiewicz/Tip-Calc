@@ -61,31 +61,46 @@ class TipViewModel : ObservableObject {
         self.baseStringURL = baseStringURL
     }
     
-    func getTipHistoryFromServer() {
-        requestManager.send(endpoint: "tips", method: .GET, responseType: [HistoryData].self) { [weak self] result in
-            switch result {
-            case .success(let decodedHistory):
-                self?.history = decodedHistory
-            case .failure(let error):
-                self?.viewError = .from(error)
-                self?.shouldDisplayError = true
-            }
+    func getTipHistoryFromServer() async {
+//        requestManager.send(endpoint: "tips", method: .GET, responseType: [HistoryData].self) { [weak self] result in
+//            switch result {
+//            case .success(let decodedHistory):
+//                self?.history = decodedHistory
+//            case .failure(let error):
+//                self?.viewError = .from(error)
+//                self?.shouldDisplayError = true
+//            }
+//        }
+        let result = try? await requestManager.get(from: "HistoryData")
+        
+        guard let result else {
+            return
         }
+        
+        print(result)
     }
     
-    func sendTipToServer(tip: HistoryData) {
-        requestManager.send(
-            endpoint: "tips",
-            method: .POST,
-            body: tip) { [weak self] result in
-                switch result {
-                case .success:
-                    self?.getTipHistoryFromServer()
-                case .failure(let error):
-                    self?.viewError = .from(error)
-                    self?.shouldDisplayError = true
-                }
-            }
+    func sendTipToServer(tip: HistoryData) async {
+        let result = try? await requestManager.send(item: tip, to: "HistoryData")
+        
+        guard let result else {
+            return
+        }
+        
+        print(result)
+            
+//        requestManager.send(
+//            endpoint: "tips",
+//            method: .POST,
+//            body: tip) { [weak self] result in
+//                switch result {
+//                case .success:
+//                    self?.getTipHistoryFromServer()
+//                case .failure(let error):
+//                    self?.viewError = .from(error)
+//                    self?.shouldDisplayError = true
+//                }
+//            }
     }
     
     /*
@@ -101,7 +116,9 @@ class TipViewModel : ObservableObject {
             responseType: EmptyResponse.self) { [weak self] result in
                 switch result {
                 case .success:
-                    self?.getTipHistoryFromServer()
+                    Task {
+                        await self?.getTipHistoryFromServer()
+                    }
                 case .failure(let error):
                     self?.viewError = .from(error)
                     self?.shouldDisplayError = true

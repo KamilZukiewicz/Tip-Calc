@@ -6,8 +6,14 @@
 //
 
 import Foundation
+import Supabase
 
 final class RequestManager {
+
+    let supabase = SupabaseClient(
+      supabaseURL: URL(string: "https://itiaamztvjznrxonspvb.supabase.co")!,
+      supabaseKey: "sb_secret_ECxS_tdi7XjikFnkK9KemA_IiMbpXT1"
+    )
 
     static let shared = RequestManager()
     private init() {}
@@ -94,6 +100,33 @@ private extension RequestManager {
 }
 
 extension RequestManager {
+    func send<T: Codable>(
+        item: T,
+        to path: String
+    ) async throws -> PostgrestResponse<Void> {
+        do {
+            return try await supabase
+            .from(path)
+            .insert(item)
+            .execute()
+        } catch {
+            throw error
+        }
+    }
+    
+    func get(
+        from path: String
+    ) async throws -> PostgrestResponse<Void> {
+        do {
+            return try await supabase
+                .from(path)
+                .select()
+                .execute()
+        } catch {
+            throw error
+        }
+    }
+    
     func send<T: Decodable, Body: Encodable>(
         endpoint: String,
         method: HTTPMethod,
@@ -127,6 +160,8 @@ extension RequestManager {
             completion(.failure(.transport(error)))
             return
         }
+        
+       
 
         perform(request: request, responseType: T.self, completion: completion)
     }
