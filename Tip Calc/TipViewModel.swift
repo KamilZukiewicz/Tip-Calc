@@ -16,7 +16,7 @@ struct UserData: Identifiable { // preset
 
 struct HistoryData: Codable, Identifiable, Equatable { // Tip
     var id: UUID = UUID()
-    var date: Date
+    var date: String
     var amount: Double
     var tipPercent: Int32
     var perPerson: Double
@@ -30,7 +30,6 @@ struct CurrencyData: Codable {
     }
 }
 
-
 class TipViewModel : ObservableObject {
     @Published var amount: Double = 0.0
     @Published var tipPercent: Int32 = 10
@@ -42,7 +41,6 @@ class TipViewModel : ObservableObject {
     @Published var userData: [UserData] = []
     @Published var error: TipError?
     @Published var shouldDisplayError: Bool = false
-    
     @Published var currencyData: CurrencyData?
     @Published var euroRate: Double?
     @Published var usdRate: Double?
@@ -50,80 +48,44 @@ class TipViewModel : ObservableObject {
     private let requestManager = RequestManager.shared
     private let requestService: RequestService
     private let baseStringURL: String
- 
-    /*
-     Aktualnie model komunikuje się tylko z localhost, i to jest ok dla DEBUG.
-     TRZEBA dodać url dla serwera (bazy danych) dla PROD.
-     */
+    private let supabaseService = SupabaseService()
     
     init(baseStringURL: String = "http://localhost:3000", requestService: RequestService = URLSession.shared) {
         self.requestService = requestService
         self.baseStringURL = baseStringURL
     }
     
+    @MainActor
     func getTipHistoryFromServer() async {
-//        requestManager.send(endpoint: "tips", method: .GET, responseType: [HistoryData].self) { [weak self] result in
-//            switch result {
-//            case .success(let decodedHistory):
-//                self?.history = decodedHistory
-//            case .failure(let error):
-//                self?.viewError = .from(error)
-//                self?.shouldDisplayError = true
-//            }
-//        }
-        let result = try? await requestManager.get(from: "HistoryData")
-        
-        guard let result else {
-            return
+        do {
+            let result: [HistoryData]? = try await supabaseService.fetchAll(from: "HistoryData")
+            history = result ?? []
+        } catch {
+            viewError = .from(.decodingError(error))
+            shouldDisplayError = true
         }
-        
-        print(result)
     }
     
     func sendTipToServer(tip: HistoryData) async {
-        let result = try? await requestManager.send(item: tip, to: "HistoryData")
+        let result = try? await supabaseService.insert(tip , into: "HistoryData")
         
         guard let result else {
             return
         }
-        
-        print(result)
-            
-//        requestManager.send(
-//            endpoint: "tips",
-//            method: .POST,
-//            body: tip) { [weak self] result in
-//                switch result {
-//                case .success:
-//                    self?.getTipHistoryFromServer()
-//                case .failure(let error):
-//                    self?.viewError = .from(error)
-//                    self?.shouldDisplayError = true
-//                }
-//            }
+        Task {
+            await getTipHistoryFromServer()
+        }
     }
-    
-    /*
-     POST = HistoryData -> Codable -> JSON -> Data (BODY)
-     GET = facebook.com/authentication?userId=123&privilige=admin&scope=all
-     */
-    
-    func deleteTipFromServer(tip: HistoryData) {
-        requestManager.send(
-            endpoint: "tips",
-            method: .DELETE,
-            query: ["id": tip.id.uuidString],
-            responseType: EmptyResponse.self) { [weak self] result in
-                switch result {
-                case .success:
-                    Task {
-                        await self?.getTipHistoryFromServer()
-                    }
-                case .failure(let error):
-                    self?.viewError = .from(error)
-                    self?.shouldDisplayError = true
-                }
-            }
+ 
+    func deleteTipFromServer(tip: HistoryData) async {
+        let result: ()? = try? await supabaseService.delete(value: tip, from: "HistoryData", id: tip.id)
+        
+        guard let result else {
+            return
+        }
+        Task {
+            await getTipHistoryFromServer()
+        }
     }
     
     func tipPercentRoundedValue(_ value: Double) -> Int32 {
@@ -134,7 +96,7 @@ class TipViewModel : ObservableObject {
     }
     
     func tip(amount: Double, percent: Int32) -> Double {
-        return amount * Double((percent / 100))
+        return amount * Double(percent) / 100
     }
     
     func total(amount: Double, percent: Int32) -> Double {

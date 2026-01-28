@@ -244,7 +244,7 @@ struct ContentView: View {
                 Button(action: {
                     let perPerson = tipViewModel.perPerson(amount: tipViewModel.amount, percent: tipViewModel.tipPercent, people: tipViewModel.people)
                     let historyItem: HistoryData = .init(
-                        date: Date.now,
+                        date: Date.now.formattedDate,
                         amount: tipViewModel.amount,
                         tipPercent: tipViewModel.tipPercent,
                         perPerson: perPerson
@@ -277,7 +277,7 @@ struct ContentView: View {
                     ForEach(tipViewModel.history) { historyItem in
                         VStack {
                             HStack {
-                                Text(L10n.CardView.HistoryView.ScrollView.TextData.title(historyItem.date.formattedDate))
+                                Text(L10n.CardView.HistoryView.ScrollView.TextData.title(historyItem.date))
                                     .font(.subheadline)
                                     .frame(maxWidth: .infinity)
                                 
@@ -295,7 +295,9 @@ struct ContentView: View {
                                     .frame(maxWidth: .infinity)
                             }
                             Button(L10n.CardView.HistoryView.ScrollView.Button.Delete.title) {
-                                tipViewModel.deleteTipFromServer(tip: historyItem)
+                                Task {
+                                    await tipViewModel.deleteTipFromServer(tip: historyItem)
+                                }
                             }
                         }
                         .padding()

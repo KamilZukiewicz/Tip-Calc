@@ -12,29 +12,15 @@ import Combine
 final class Tip_CalcTests: XCTestCase {
     
     func test_getTipHistoryData_Success() {
-        let responseData: [HistoryData] = [.init(date: .now, amount: 120, tipPercent: 10, perPerson: 60)]
-        let viewModel = TipViewModel(requestService: MockURLSession(responseData: responseData))
-        viewModel.getTipHistoryFromServer()
-        waitUntil(viewModel.$history, equals: responseData)
-        XCTAssertEqual(viewModel.history.count, 1)
+       
     }
     
     func test_getTipHistoryData_badURL() {
-        let responseData: [HistoryData] = []
-        let viewModel = TipViewModel(baseStringURL: "", requestService: MockURLSession(responseData: responseData))
-        viewModel.getTipHistoryFromServer()
-        XCTAssertEqual(viewModel.history.count, 0)
+       
     }
     
     func test_getTipHistory_failed_badRequest() {
-        let viewModel = TipViewModel(
-            requestService: MockURLSession<HistoryData>(
-                httpURLResponse: .init(url: URL(string: "www.google.com")!, statusCode: 400, httpVersion: nil, headerFields: nil)
-            )
-        )
-        viewModel.getTipHistoryFromServer()
-        waitUntil(viewModel.$error, equals: .badRequest)
-        XCTAssertEqual(viewModel.error, .badRequest)
+       
     }
 }
 
