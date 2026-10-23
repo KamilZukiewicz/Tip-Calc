@@ -6,10 +6,19 @@
 //
 
 import SwiftUI
+import Supabase
 import Combine
 
 @main
 struct Tip_CalcApp: App {
+    
+    @StateObject private var authViewModel = AuthViewModel(
+        client: SupabaseClient(
+            supabaseURL: URL(string: Secrets.supabaseURL)!,
+            supabaseKey: Secrets.supabaseKey
+        )
+    )
+    
     var body: some Scene {
         TestSafeWindowGroup {
             ContentView()
@@ -30,6 +39,7 @@ struct TestSafeWindowGroup<Content: View>: Scene {
         self.content = content
     }
     
+   
     var body: some Scene {
         WindowGroup {
             if ProcessInfo.processInfo.isRunningTests {
