@@ -18,6 +18,7 @@ enum NetworkError: Error {
     case transport(Error)
     case noData
     case decodingError(Error)
+    case limitError
 }
 
 enum ViewError: Identifiable {
@@ -27,6 +28,7 @@ enum ViewError: Identifiable {
     case notFound
     case serverError
     case missingRequiredFields
+    case limit
     case generic
 
     var localizedDescription: String {
@@ -35,6 +37,7 @@ enum ViewError: Identifiable {
         case .notFound: return "Resource not found."
         case .serverError: return "Internal server error."
         case .missingRequiredFields: return "Wrong data provided. Please try again."
+        case .limit: return  "Reached maximum request limit"
         case .generic: return "Something went wrong."
         }
     }
@@ -47,6 +50,7 @@ extension ViewError {
         case .notFound: return .notFound
         case .serverError: return .serverError
         case .missingRequiredFields: return .missingRequiredFields
+        case .limitError: return .limit
         default: return .generic
         }
     }

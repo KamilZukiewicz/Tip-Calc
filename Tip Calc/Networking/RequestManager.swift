@@ -12,7 +12,7 @@ final class RequestManager {
 
     let supabase = SupabaseClient(
       supabaseURL: URL(string: "https://itiaamztvjznrxonspvb.supabase.co")!,
-      supabaseKey: "sb_secret_ECxS_tdi7XjikFnkK9KemA_IiMbpXT1"
+      supabaseKey: "sb_secret_Superbase_Key"
     )
 
     static let shared = RequestManager()

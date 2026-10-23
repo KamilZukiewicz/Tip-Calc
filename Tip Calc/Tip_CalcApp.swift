@@ -21,7 +21,17 @@ struct Tip_CalcApp: App {
     
     var body: some Scene {
         TestSafeWindowGroup {
-            ContentView()
+            Group {
+                switch authViewModel.state {
+                case .loading:
+                    ProgressView()
+                case .signedOut, .error:
+                    LoginView(authViewModel: authViewModel, errorMessage: authViewModel.state.errorMessage)
+                case .authenticated:
+                    ContentView(authViewModel: authViewModel)
+                }
+            }
+            .task { await authViewModel.checkSession() }
         }
     }
 }

@@ -37,15 +37,46 @@ public protocol SupabaseServiceProtocol {
 
 final class SupabaseService: SupabaseServiceProtocol {
     
+    private let limitKey = "limitKey"
+    private let dateKey = "dateKey"
+    private let requestsLimit = 100
+    private var currentRequetNumber = 0
+    private var requestDate: Date?
+    
     let client = SupabaseClient(
       supabaseURL: URL(string: "https://itiaamztvjznrxonspvb.supabase.co")!,
-      supabaseKey: "sb_secret_ECxS_tdi7XjikFnkK9KemA_IiMbpXT1"
+      supabaseKey: "sb_secret_Suparbase_Key"
     )
+    
+    init() {
+        self.currentRequetNumber = UserDefaults.standard.integer(forKey: limitKey)
+        if let oldDate = UserDefaults.standard.string(forKey: dateKey)?.date {
+            let current = Date.now
+            let shouldResetLimit = current.timeIntervalSince(oldDate) > 60 * 60 * 24
+            print("Should reset?: \(shouldResetLimit)")
+            if shouldResetLimit {
+                UserDefaults.standard.removeObject(forKey: limitKey)
+                UserDefaults.standard.removeObject(forKey: dateKey)
+                self.currentRequetNumber = 0
+                self.requestDate = nil
+            } else {
+                requestDate = oldDate
+            }
+        }
+    }
 
     func fetchAll<T: Codable & Identifiable>(
         from table: String
     ) async throws -> [T] {
-        try await client
+        guard currentRequetNumber <= requestsLimit else {
+            if requestDate == nil {
+                requestDate = Date.now
+                UserDefaults.standard.set(requestDate?.formattedDate, forKey: dateKey)
+            }
+            throw NetworkError.limitError
+        }
+        incrementRequestCounter()
+        return try await client
             .from(table)
             .select()
             .execute()
@@ -56,7 +87,11 @@ final class SupabaseService: SupabaseServiceProtocol {
         from table: String,
         id: T.ID
     ) async throws -> T? {
-        try await client
+        guard currentRequetNumber <= requestsLimit else {
+            throw NetworkError.limitError
+        }
+        incrementRequestCounter()
+        return try await client
             .from(table)
             .select()
             .eq("id", value: "\(id)")
@@ -69,6 +104,10 @@ final class SupabaseService: SupabaseServiceProtocol {
         _ value: T,
         into table: String
     ) async throws {
+        guard currentRequetNumber <= requestsLimit else {
+            throw NetworkError.limitError
+        }
+        incrementRequestCounter()
         try await client
             .from(table)
             .insert(value)
@@ -79,6 +118,10 @@ final class SupabaseService: SupabaseServiceProtocol {
         _ value: T,
         in table: String
     ) async throws {
+        guard currentRequetNumber <= requestsLimit else {
+            throw NetworkError.limitError
+        }
+        incrementRequestCounter()
         try await client
             .from(table)
             .update(value)
@@ -91,10 +134,19 @@ final class SupabaseService: SupabaseServiceProtocol {
         from table: String,
         id: T.ID
     ) async throws {
+        guard currentRequetNumber <= requestsLimit else {
+            throw NetworkError.limitError
+        }
+        incrementRequestCounter()
         try await client
             .from(table)
             .delete()
             .eq("id", value: "\(id)")
             .execute()
+    }
+    
+    private func incrementRequestCounter() {
+        currentRequetNumber += 1
+        UserDefaults.standard.set(currentRequetNumber, forKey: limitKey)
     }
 }

@@ -30,6 +30,7 @@ struct CurrencyData: Codable {
     }
 }
 
+@MainActor
 class TipViewModel : ObservableObject {
     @Published var amount: Double = 0.0
     @Published var tipPercent: Int32 = 10
@@ -61,19 +62,18 @@ class TipViewModel : ObservableObject {
             let result: [HistoryData]? = try await supabaseService.fetchAll(from: "HistoryData")
             history = result ?? []
         } catch {
-            viewError = .from(.decodingError(error))
-            shouldDisplayError = true
+            handle(error: error)
         }
     }
     
     func sendTipToServer(tip: HistoryData) async {
-        let result = try? await supabaseService.insert(tip , into: "HistoryData")
-        
-        guard let result else {
-            return
-        }
-        Task {
-            await getTipHistoryFromServer()
+        do {
+            let result = try await supabaseService.insert(tip , into: "HistoryData")
+            Task {
+                await getTipHistoryFromServer()
+            }
+        } catch {
+            handle(error: error)
         }
     }
  
@@ -233,6 +233,19 @@ class TipViewModel : ObservableObject {
         case (.USD, .USD): return 1.0
         case (.EUR, .EUR): return 1.0
         case (.PLN, .PLN): return 1.0
+        }
+    }
+    
+    private func handle(error: Error) {
+        if let networkingError = error as? NetworkError {
+            switch networkingError {
+            case .limitError:
+                viewError = .from(.limitError)
+                shouldDisplayError = true
+            default:
+                viewError = .from(.decodingError(error))
+                shouldDisplayError = true
+            }
         }
     }
 }

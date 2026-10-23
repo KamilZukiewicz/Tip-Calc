@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var tipViewModel = TipViewModel()
+    @ObservedObject var authViewModel: AuthViewModel
     @State private var isEditing = false
     @State private var roundUp: Bool = false
     @FocusState private var isFocused: Bool
@@ -31,10 +32,21 @@ struct ContentView: View {
             ScrollView {
                 VStack(spacing: Constants.spacing) {
                     
-                    Text("Tip Calc")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white.opacity(0.7))
+                    HStack {
+                        
+                        Text("Tip Calc")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white.opacity(0.7))
+                        
+                        Spacer()
+                        
+                        Button("Wyloguj") {
+                            Task { await authViewModel.signOut() }
+                        }
+                        .foregroundColor(.red)
+                    }
+                    
                     
                     billValueView()
                     

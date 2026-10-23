@@ -31,3 +31,11 @@ extension Date {
         return formatter.string(from: self)
     }
 }
+
+extension String {
+    var date: Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = DateFormats.dayMonthYear.value
+        return formatter.date(from: self)
+    }
+}
