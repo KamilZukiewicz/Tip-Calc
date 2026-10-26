@@ -43,7 +43,19 @@ final class AuthViewModel: ObservableObject {
     }
     
     func signUp(email: String, password: String) async {
-        
+        isSubmitting = true
+        defer { isSubmitting = false }
+        do {
+            let response = try await client.auth.signUp(email: email, password: password)
+            if response.session != nil {
+                state = .authenticated
+               } else {
+                   state = .error("Sprawdź skrzynkę i potwierdź e-mail.")
+               }
+            
+        } catch {
+            state = .error(error.localizedDescription)
+        }
     }
     
     func signOut() async {

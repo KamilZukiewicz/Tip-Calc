@@ -12,6 +12,7 @@ struct LoginView: View {
     let errorMessage: String?
     @State private var email = ""
     @State private var password = ""
+    @State private var showSignUp = false
 
     var body: some View {
         VStack {
@@ -25,6 +26,12 @@ struct LoginView: View {
                 Task { await authViewModel.signIn(email: email, password: password) }
             }
             .disabled(authViewModel.isSubmitting)
+            Button("Nie masz konta? Zarejestruj się") {
+                showSignUp = true
+            }
+        }
+        .sheet(isPresented: $showSignUp) {
+            SignUpView(authViewModel: authViewModel, errorMessage: errorMessage)
         }
     }
 }
