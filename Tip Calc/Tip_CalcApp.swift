@@ -12,12 +12,17 @@ import Combine
 @main
 struct Tip_CalcApp: App {
     
-    @StateObject private var authViewModel = AuthViewModel(
-        client: SupabaseClient(
+    private let client: SupabaseClient
+    @StateObject private var authViewModel: AuthViewModel
+
+    init() {
+        let client = SupabaseClient(
             supabaseURL: URL(string: Secrets.supabaseURL)!,
             supabaseKey: Secrets.supabaseKey
         )
-    )
+        self.client = client
+        _authViewModel = StateObject(wrappedValue: AuthViewModel(client: client))
+    }
     
     var body: some Scene {
         TestSafeWindowGroup {
@@ -28,7 +33,7 @@ struct Tip_CalcApp: App {
                 case .signedOut, .error:
                     LoginView(authViewModel: authViewModel, errorMessage: authViewModel.state.errorMessage)
                 case .authenticated:
-                    ContentView(authViewModel: authViewModel)
+                    ContentView(authViewModel: authViewModel, client: client)
                 }
             }
             .task { await authViewModel.checkSession() }

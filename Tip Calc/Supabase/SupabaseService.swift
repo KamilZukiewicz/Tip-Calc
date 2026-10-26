@@ -42,13 +42,10 @@ final class SupabaseService: SupabaseServiceProtocol {
     private let requestsLimit = 100
     private var currentRequetNumber = 0
     private var requestDate: Date?
+    private let client: SupabaseClient
     
-    let client = SupabaseClient(
-      supabaseURL: URL(string: "https://itiaamztvjznrxonspvb.supabase.co")!,
-      supabaseKey: "sb_secret_Suparbase_Key"
-    )
-    
-    init() {
+    init(client: SupabaseClient) {
+        self.client = client
         self.currentRequetNumber = UserDefaults.standard.integer(forKey: limitKey)
         if let oldDate = UserDefaults.standard.string(forKey: dateKey)?.date {
             let current = Date.now

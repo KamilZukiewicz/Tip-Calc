@@ -49,9 +49,14 @@ class TipViewModel : ObservableObject {
     private let requestManager = RequestManager.shared
     private let requestService: RequestService
     private let baseStringURL: String
-    private let supabaseService = SupabaseService()
+    private let supabaseService: SupabaseServiceProtocol
     
-    init(baseStringURL: String = "http://localhost:3000", requestService: RequestService = URLSession.shared) {
+    init(
+        supabaseService: SupabaseServiceProtocol,
+        baseStringURL: String = "http://localhost:3000",
+        requestService: RequestService = URLSession.shared
+    ) {
+        self.supabaseService = supabaseService
         self.requestService = requestService
         self.baseStringURL = baseStringURL
     }

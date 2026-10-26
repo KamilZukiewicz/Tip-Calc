@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import Supabase
 
 struct ContentView: View {
-    @ObservedObject var tipViewModel = TipViewModel()
+    @StateObject private var tipViewModel: TipViewModel
     @ObservedObject var authViewModel: AuthViewModel
     @State private var isEditing = false
     @State private var roundUp: Bool = false
@@ -20,6 +21,13 @@ struct ContentView: View {
 
     let step = 1
     let range = 1...30
+    
+    init(authViewModel: AuthViewModel, client: SupabaseClient) {
+        self.authViewModel = authViewModel
+        _tipViewModel = StateObject(
+            wrappedValue: TipViewModel(supabaseService: SupabaseService(client: client))
+        )
+    }
     
     var body: some View {
         
@@ -45,8 +53,7 @@ struct ContentView: View {
                             Task { await authViewModel.signOut() }
                         }
                         .foregroundColor(.red)
-                    }
-                    
+                    }                    
                     
                     billValueView()
                     
